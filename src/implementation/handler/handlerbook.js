@@ -59,13 +59,16 @@ const addBook = (req , res) => {
 
 const getBookById = (req , res) => {
     const { id } = req.params;
-    const foundBook = books.filter((book) => book.id === id);
-    if (foundBook.length === 0){
+
+    const foundBook = books.find((book) => book.id === id);
+
+    if (!foundBook) {
         return res.response({
             status: 'fail',
             message: 'Buku tidak ditemukan',
         }).code(404);
     }
+
     return res.response({
         status: 'success',
         data: { book: foundBook },
@@ -78,7 +81,7 @@ const deleteBook = (req , res) => {
     if (book.length === 0){
         return res.response({
             status: 'fail',
-            message: 'Buku tidak ditemukan',
+            message: 'Buku gagal dihapus. Id tidak ditemukan',
             }).code(404);
     }
     books.splice(books.indexOf(book), 1);
@@ -111,7 +114,19 @@ const updateBook = (req , res) => {
     if (readPage > pageCount){
         return res.response({
             status: 'fail',
-            message: 'Gagal mengubah buku. readPage tidak boleh lebih besar dari pageCount',
+            message: 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
+        }).code(400);
+    }
+    if (index === -1){
+        return res.response({
+            status: 'fail',
+            message: 'Gagal memperbarui buku. Id tidak ditemukan',
+            }).code(404);
+    }
+    if (!name){
+        return res.response({
+            status: 'fail',
+            message: 'Gagal memperbarui buku. Mohon isi nama buku',
         }).code(400);
     }
     books[index] = {
@@ -156,7 +171,7 @@ const getAllBooks = (req , res) => {
     bookResponse = books.map((book) => {
         return {
             id: book.id,
-            tittle: book.tittle,
+            name : book.name,
             publisher: book.publisher,
         }
     });
